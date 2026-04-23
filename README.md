@@ -30,14 +30,38 @@ The plugin will warn you at session start if this variable is missing.
 
 ## Installation
 
-### 1. Clone the repository
+Agent plugins are installed through VS Code's plugin discovery system (currently in preview). No cloning required.
 
-```bash
-git clone https://github.com/jernkuan/shortcut-skills.git
-cd shortcut-skills
+### 1. Enable agent plugins in VS Code
+
+Open User Settings JSON (`Cmd+Shift+P` → "Open User Settings (JSON)") and add:
+
+```json
+{
+  "chat.plugins.enabled": true
+}
 ```
 
-### 2. Set your API token
+### 2. Add this repo as a plugin marketplace source
+
+In the same settings file, register this repository as a marketplace:
+
+```json
+{
+  "chat.plugins.enabled": true,
+  "chat.plugins.marketplaces": [
+    "https://raw.githubusercontent.com/jernkuan/shortcut-skills/main"
+  ]
+}
+```
+
+### 3. Install the plugin
+
+- Open the Extensions view (`Cmd+Shift+X`)
+- Search using the filter `@agentPlugins`
+- Find **Shortcut Copilot** and click Install
+
+### 4. Set your API token
 
 Get your token from **Shortcut → Settings → API Tokens**, then add it to your shell profile:
 
@@ -48,24 +72,6 @@ export SHORTCUT_API_TOKEN=your-token-here
 
 Reload your shell or run `source ~/.zshrc` after adding it.
 
-### 3. Register the plugin with VS Code Copilot
-
-Open your VS Code user or workspace settings (`Cmd+Shift+P` → "Open User Settings (JSON)") and add the path to the `shortcut-plugin/` directory:
-
-```json
-{
-  "github.copilot.chat.plugins": [
-    "/path/to/shortcut-skills/shortcut-plugin"
-  ]
-}
-```
-
-Replace `/path/to/shortcut-skills` with the actual path where you cloned the repo.
-
-### 4. Reload VS Code
-
-Restart VS Code (or run `Developer: Reload Window` from the command palette) for the plugin to be picked up.
-
 ### 5. Verify
 
 Open Copilot Chat and type:
@@ -74,7 +80,20 @@ Open Copilot Chat and type:
 @shortcut-engineer who am I?
 ```
 
-If the plugin is loaded correctly, it will call the Shortcut API and return your workspace member details. If you see a warning about `SHORTCUT_API_TOKEN`, check step 2.
+The agent will call the Shortcut API and return your workspace member details. If you see a warning about `SHORTCUT_API_TOKEN`, check step 4.
+
+---
+
+**For local development**, you can also add the plugin from a local path instead of a URL:
+
+```json
+{
+  "chat.plugins.enabled": true,
+  "chat.plugins.marketplaces": [
+    "/path/to/shortcut-skills"
+  ]
+}
+```
 
 ## Structure
 
