@@ -28,6 +28,54 @@ export SHORTCUT_API_TOKEN=your-token-here
 
 The plugin will warn you at session start if this variable is missing.
 
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/jernkuan/shortcut-skills.git
+cd shortcut-skills
+```
+
+### 2. Set your API token
+
+Get your token from **Shortcut → Settings → API Tokens**, then add it to your shell profile:
+
+```bash
+# ~/.zshrc or ~/.bashrc
+export SHORTCUT_API_TOKEN=your-token-here
+```
+
+Reload your shell or run `source ~/.zshrc` after adding it.
+
+### 3. Register the plugin with VS Code Copilot
+
+Open your VS Code user or workspace settings (`Cmd+Shift+P` → "Open User Settings (JSON)") and add the path to the `shortcut-plugin/` directory:
+
+```json
+{
+  "github.copilot.chat.plugins": [
+    "/path/to/shortcut-skills/shortcut-plugin"
+  ]
+}
+```
+
+Replace `/path/to/shortcut-skills` with the actual path where you cloned the repo.
+
+### 4. Reload VS Code
+
+Restart VS Code (or run `Developer: Reload Window` from the command palette) for the plugin to be picked up.
+
+### 5. Verify
+
+Open Copilot Chat and type:
+
+```
+@shortcut-engineer who am I?
+```
+
+If the plugin is loaded correctly, it will call the Shortcut API and return your workspace member details. If you see a warning about `SHORTCUT_API_TOKEN`, check step 2.
+
 ## Structure
 
 ```
