@@ -1,0 +1,1626 @@
+{
+  "tools": [
+    {
+      "name": "users-get-current",
+      "description": "Use when: you need the current authenticated user's ID, name, or mention name. Returns the member record for the owner of SHORTCUT_API_TOKEN.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/member",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "users-get-current-teams",
+      "description": "Use when: you need to know which teams the current user belongs to. Returns a list of group (team) records.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/groups",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "users-list",
+      "description": "Use when: you need to list all members in the workspace, resolve a name to a member UUID, or populate an owner dropdown.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/members",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "stories-get-by-id",
+      "description": "Use when: you need full details of a specific story by its integer ID, including workflow state, owners, labels, tasks, and custom fields.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          }
+        },
+        "required": ["storyPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-get-history",
+      "description": "Use when: you need the audit trail or changelog for a story — who changed what and when.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          }
+        },
+        "required": ["storyPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/history",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "stories-search",
+      "description": "Use when: you need to find stories by keyword, owner, label, epic, iteration, workflow state, or story type. Always search before creating to avoid duplicates.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query string."
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Number of results per page (max 25)."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Level of detail: 'full' or 'slim'.",
+            "enum": ["full", "slim"]
+          }
+        },
+        "required": ["query"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/stories/search",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "query": "{query}",
+          "page_size": "{page_size}",
+          "detail": "{detail}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-get-branch-name",
+      "description": "Use when: a developer asks for the suggested git branch name for a story. Returns the formatted branch name string.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          }
+        },
+        "required": ["storyPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/git/branch-name",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "stories-create",
+      "description": "Use when: the user wants to create a new story. Always search first to avoid duplicates. story_type must be 'feature', 'bug', or 'chore'. Fetch workflow states with workflows-get-by-id before setting workflow_state_id. Call custom-fields-list before setting custom_fields.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Title of the story."
+          },
+          "story_type": {
+            "type": "string",
+            "description": "Type of story: 'feature', 'bug', or 'chore'.",
+            "enum": ["feature", "bug", "chore"]
+          },
+          "description": {
+            "type": "string",
+            "description": "Markdown description of the story."
+          },
+          "workflow_state_id": {
+            "type": "integer",
+            "description": "Integer ID of the workflow state. Fetch available states with workflows-get-by-id first."
+          },
+          "owner_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of member UUID strings to assign as owners."
+          },
+          "epic_id": {
+            "type": "integer",
+            "description": "Integer ID of the parent epic."
+          },
+          "iteration_id": {
+            "type": "integer",
+            "description": "Integer ID of the iteration (sprint) to add this story to."
+          },
+          "labels": {
+            "type": "array",
+            "items": { "type": "object", "properties": { "name": { "type": "string" } } },
+            "description": "Array of label objects with a 'name' field."
+          },
+          "estimate": {
+            "type": "integer",
+            "description": "Point estimate for the story."
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Due date in ISO 8601 format YYYY-MM-DD."
+          }
+        },
+        "required": ["name", "story_type"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "story_type": "{story_type}",
+          "description": "{description}",
+          "workflow_state_id": "{workflow_state_id}",
+          "owner_ids": "{owner_ids}",
+          "epic_id": "{epic_id}",
+          "iteration_id": "{iteration_id}",
+          "labels": "{labels}",
+          "estimate": "{estimate}",
+          "deadline": "{deadline}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-update",
+      "description": "Use when: you need to change any field on an existing story — state, owner, estimate, description, epic, iteration, labels, custom fields, or deadline. Fetch workflow states with workflows-get-by-id before setting workflow_state_id. Call custom-fields-list before setting custom_fields.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story to update."
+          },
+          "name": {
+            "type": "string",
+            "description": "New title of the story."
+          },
+          "story_type": {
+            "type": "string",
+            "description": "Type of story: 'feature', 'bug', or 'chore'.",
+            "enum": ["feature", "bug", "chore"]
+          },
+          "description": {
+            "type": "string",
+            "description": "New Markdown description."
+          },
+          "workflow_state_id": {
+            "type": "integer",
+            "description": "Integer ID of the new workflow state."
+          },
+          "owner_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Complete replacement list of owner UUIDs."
+          },
+          "epic_id": {
+            "type": "integer",
+            "description": "Integer ID of the parent epic."
+          },
+          "iteration_id": {
+            "type": "integer",
+            "description": "Integer ID of the iteration."
+          },
+          "labels": {
+            "type": "array",
+            "items": { "type": "object", "properties": { "name": { "type": "string" } } },
+            "description": "Replacement list of label objects."
+          },
+          "estimate": {
+            "type": "integer",
+            "description": "Point estimate."
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Due date in ISO 8601 format YYYY-MM-DD."
+          },
+          "custom_fields": {
+            "type": "array",
+            "description": "Array of custom field value objects. Call custom-fields-list first to get valid field and enum IDs."
+          }
+        },
+        "required": ["storyPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "story_type": "{story_type}",
+          "description": "{description}",
+          "workflow_state_id": "{workflow_state_id}",
+          "owner_ids": "{owner_ids}",
+          "epic_id": "{epic_id}",
+          "iteration_id": "{iteration_id}",
+          "labels": "{labels}",
+          "estimate": "{estimate}",
+          "deadline": "{deadline}",
+          "custom_fields": "{custom_fields}"
+        }
+      }
+    },
+    {
+      "name": "stories-upload-file",
+      "description": "Use when: the user wants to attach a file to a story. NOTE: This operation requires multipart/form-data which cannot be performed via this JSON HTTP tool. Inform the user that file uploads must be done through the Shortcut web UI at shortcut.com.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          }
+        },
+        "required": ["storyPublicId"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/files",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {}
+      }
+    }
+    ,
+    {
+      "name": "stories-assign-current-user",
+      "description": "Use when: the user wants to assign themselves to a story. This is a two-step operation: (1) call users-get-current to get the current user's UUID, (2) call stories-get-by-id to get the current owner_ids array, (3) pass the merged owner_ids array (existing owners plus current user UUID) as the owner_ids parameter here.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "owner_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "The complete new owner_ids array: existing owners merged with the current user UUID. Must be pre-computed by the model."
+          }
+        },
+        "required": ["storyPublicId", "owner_ids"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "owner_ids": "{owner_ids}"
+        }
+      }
+    },
+    {
+      "name": "stories-unassign-current-user",
+      "description": "Use when: the user wants to remove themselves from a story's owners. This is a two-step operation: (1) call users-get-current to get the current user's UUID, (2) call stories-get-by-id to get the current owner_ids array, (3) pass the filtered owner_ids array (existing owners minus current user UUID) as the owner_ids parameter here.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "owner_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "The complete new owner_ids array: existing owners with the current user UUID removed. Must be pre-computed by the model."
+          }
+        },
+        "required": ["storyPublicId", "owner_ids"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "owner_ids": "{owner_ids}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-create-comment",
+      "description": "Use when: the user wants to add a comment to a story.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "text": {
+            "type": "string",
+            "description": "The Markdown text of the comment."
+          }
+        },
+        "required": ["storyPublicId", "text"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/comments",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "{text}"
+        }
+      }
+    },
+    {
+      "name": "stories-create-subtask",
+      "description": "Use when: the user wants to create a brand-new story and immediately make it a sub-story (subtask) of an existing parent story.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "parentStoryPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the parent story."
+          },
+          "name": {
+            "type": "string",
+            "description": "Title of the new subtask story."
+          },
+          "story_type": {
+            "type": "string",
+            "description": "Type: 'feature', 'bug', or 'chore'.",
+            "enum": ["feature", "bug", "chore"]
+          },
+          "description": {
+            "type": "string",
+            "description": "Markdown description."
+          }
+        },
+        "required": ["parentStoryPublicId", "name", "story_type"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "story_type": "{story_type}",
+          "description": "{description}",
+          "parent_story_id": "{parentStoryPublicId}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-add-subtask",
+      "description": "Use when: the user wants to link an existing story as a sub-story under a parent story.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "childStoryPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story to become a sub-story."
+          },
+          "parentStoryPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the parent story."
+          }
+        },
+        "required": ["childStoryPublicId", "parentStoryPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{childStoryPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "parent_story_id": "{parentStoryPublicId}"
+        }
+      }
+    },
+    {
+      "name": "stories-remove-subtask",
+      "description": "Use when: the user wants to detach a sub-story from its parent, making it a top-level story again. Sets parent_id to null.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "childStoryPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the sub-story to detach."
+          }
+        },
+        "required": ["childStoryPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{childStoryPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "parent_story_id": null
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-add-task",
+      "description": "Use when: the user wants to add a checklist task (not a sub-story) to a story.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "description": {
+            "type": "string",
+            "description": "Text of the task."
+          },
+          "complete": {
+            "type": "boolean",
+            "description": "Whether the task is already complete. Defaults to false."
+          }
+        },
+        "required": ["storyPublicId", "description"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/tasks",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "description": "{description}",
+          "complete": "{complete}"
+        }
+      }
+    },
+    {
+      "name": "stories-update-task",
+      "description": "Use when: the user wants to update a checklist task on a story — mark it complete, rename it, or change its owner.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "taskPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the task."
+          },
+          "description": {
+            "type": "string",
+            "description": "New text of the task."
+          },
+          "complete": {
+            "type": "boolean",
+            "description": "Whether the task is complete."
+          },
+          "owner_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of member UUID strings to assign to this task."
+          }
+        },
+        "required": ["storyPublicId", "taskPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/tasks/{taskPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "description": "{description}",
+          "complete": "{complete}",
+          "owner_ids": "{owner_ids}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-add-relation",
+      "description": "Use when: the user wants to link two stories with a relation. Valid verbs: 'relates to', 'blocks', 'blocked by', 'duplicates', 'duplicated by'. Endpoint is /story-links (not /relationships).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the source story."
+          },
+          "verb": {
+            "type": "string",
+            "description": "Relation verb: 'relates to', 'blocks', 'blocked by', 'duplicates', or 'duplicated by'.",
+            "enum": ["relates to", "blocks", "blocked by", "duplicates", "duplicated by"]
+          },
+          "object_id": {
+            "type": "integer",
+            "description": "The integer public ID of the target story."
+          }
+        },
+        "required": ["storyPublicId", "verb", "object_id"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/story-links",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "verb": "{verb}",
+          "object_id": "{object_id}"
+        }
+      }
+    },
+    {
+      "name": "stories-add-external-link",
+      "description": "Use when: the user wants to add an external URL link to a story.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "url": {
+            "type": "string",
+            "description": "The external URL to add."
+          }
+        },
+        "required": ["storyPublicId", "url"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/external-links",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "url": "{url}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-remove-external-link",
+      "description": "Use when: the user wants to remove a specific external URL from a story.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "url": {
+            "type": "string",
+            "description": "The external URL to remove."
+          }
+        },
+        "required": ["storyPublicId", "url"]
+      },
+      "http": {
+        "method": "DELETE",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}/external-links",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "url": "{url}"
+        }
+      }
+    },
+    {
+      "name": "stories-set-external-links",
+      "description": "Use when: the user wants to replace all external links on a story with a new set of URLs.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "storyPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the story."
+          },
+          "external_links": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Complete replacement list of external URL strings."
+          }
+        },
+        "required": ["storyPublicId", "external_links"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/stories/{storyPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "external_links": "{external_links}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "stories-get-by-external-link",
+      "description": "Use when: the user wants to find Shortcut stories associated with a specific external URL (e.g. a GitHub PR or issue URL).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "external_link": {
+            "type": "string",
+            "description": "The external URL to look up."
+          }
+        },
+        "required": ["external_link"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/stories/external-links",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "external_link": "{external_link}"
+        }
+      }
+    },
+    {
+      "name": "epics-get-by-id",
+      "description": "Use when: you need full details of a specific epic by its integer ID, including state, stories, labels, and associated objectives.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "epicPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the epic."
+          }
+        },
+        "required": ["epicPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/epics/{epicPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "epics-search",
+      "description": "Use when: you need to find epics by keyword, state, label, or objective. Always search before creating to avoid duplicates.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query string."
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Number of results per page (max 25)."
+          }
+        },
+        "required": ["query"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/epics/search",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "query": "{query}",
+          "page_size": "{page_size}"
+        }
+      }
+    },
+    {
+      "name": "epics-create",
+      "description": "Use when: the user wants to create a new epic. Always search first with epics-search to avoid duplicates.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Title of the epic."
+          },
+          "description": {
+            "type": "string",
+            "description": "Markdown description."
+          },
+          "milestone_id": {
+            "type": "integer",
+            "description": "Integer ID of the objective (milestone) to associate."
+          },
+          "labels": {
+            "type": "array",
+            "items": { "type": "object", "properties": { "name": { "type": "string" } } },
+            "description": "Array of label objects."
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Due date in ISO 8601 format YYYY-MM-DD."
+          }
+        },
+        "required": ["name"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/epics",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "description": "{description}",
+          "milestone_id": "{milestone_id}",
+          "labels": "{labels}",
+          "deadline": "{deadline}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "epics-update",
+      "description": "Use when: the user wants to update fields on an existing epic — name, description, state, labels, deadline, or associated objective.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "epicPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the epic."
+          },
+          "name": {
+            "type": "string",
+            "description": "New title."
+          },
+          "description": {
+            "type": "string",
+            "description": "New Markdown description."
+          },
+          "state": {
+            "type": "string",
+            "description": "Epic state: 'in progress', 'to do', or 'done'.",
+            "enum": ["in progress", "to do", "done"]
+          },
+          "milestone_id": {
+            "type": "integer",
+            "description": "Integer ID of the objective (milestone)."
+          },
+          "labels": {
+            "type": "array",
+            "items": { "type": "object", "properties": { "name": { "type": "string" } } },
+            "description": "Replacement list of label objects."
+          },
+          "deadline": {
+            "type": "string",
+            "description": "Due date in ISO 8601 format YYYY-MM-DD."
+          }
+        },
+        "required": ["epicPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/epics/{epicPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "description": "{description}",
+          "state": "{state}",
+          "milestone_id": "{milestone_id}",
+          "labels": "{labels}",
+          "deadline": "{deadline}"
+        }
+      }
+    },
+    {
+      "name": "epics-create-comment",
+      "description": "Use when: the user wants to add a comment to an epic.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "epicPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the epic."
+          },
+          "text": {
+            "type": "string",
+            "description": "The Markdown text of the comment."
+          }
+        },
+        "required": ["epicPublicId", "text"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/epics/{epicPublicId}/comments",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "{text}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "epics-delete",
+      "description": "Use when: the user explicitly wants to delete an epic. DESTRUCTIVE — requires confirmation protocol: (1) call epics-get-by-id to retrieve the epic, (2) display its name, ID, and story count to the user, (3) ask the user to type 'delete epic <name>' exactly, (4) only proceed on exact affirmative match.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "epicPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the epic to delete."
+          }
+        },
+        "required": ["epicPublicId"]
+      },
+      "http": {
+        "method": "DELETE",
+        "url": "https://api.app.shortcut.com/api/v3/epics/{epicPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "iterations-get-by-id",
+      "description": "Use when: you need full details of a specific iteration (sprint) by its integer ID.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "iterationPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the iteration."
+          }
+        },
+        "required": ["iterationPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/iterations/{iterationPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "iterations-get-stories",
+      "description": "Use when: you need all stories belonging to a specific iteration.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "iterationPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the iteration."
+          }
+        },
+        "required": ["iterationPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/iterations/{iterationPublicId}/stories",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "iterations-search",
+      "description": "Use when: you need to find iterations by name or date range. Always search before creating to avoid duplicates.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query string."
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Number of results per page (max 25)."
+          }
+        },
+        "required": ["query"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/iterations/search",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "query": "{query}",
+          "page_size": "{page_size}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "iterations-get-active",
+      "description": "Use when: the user asks about the current sprint or what iteration is in progress. Returns iterations with status 'started'.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/iterations",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "status": "started"
+        }
+      }
+    },
+    {
+      "name": "iterations-get-upcoming",
+      "description": "Use when: the user asks about future/upcoming sprints or iterations not yet started. Returns iterations with status 'unstarted'.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/iterations",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "status": "unstarted"
+        }
+      }
+    }
+    ,
+    {
+      "name": "iterations-create",
+      "description": "Use when: the user wants to create a new iteration (sprint). Always search first with iterations-search to avoid duplicates. Dates must be ISO 8601 YYYY-MM-DD.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the iteration."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date in ISO 8601 format YYYY-MM-DD."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in ISO 8601 format YYYY-MM-DD."
+          },
+          "description": {
+            "type": "string",
+            "description": "Markdown description."
+          }
+        },
+        "required": ["name", "start_date", "end_date"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/iterations",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "start_date": "{start_date}",
+          "end_date": "{end_date}",
+          "description": "{description}"
+        }
+      }
+    },
+    {
+      "name": "iterations-update",
+      "description": "Use when: the user wants to update an existing iteration — rename it, change its dates, or update its description.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "iterationPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the iteration."
+          },
+          "name": {
+            "type": "string",
+            "description": "New name."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "New start date in ISO 8601 format YYYY-MM-DD."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "New end date in ISO 8601 format YYYY-MM-DD."
+          },
+          "description": {
+            "type": "string",
+            "description": "New Markdown description."
+          }
+        },
+        "required": ["iterationPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/iterations/{iterationPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "start_date": "{start_date}",
+          "end_date": "{end_date}",
+          "description": "{description}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "iterations-delete",
+      "description": "Use when: the user explicitly wants to delete an iteration. DESTRUCTIVE — requires confirmation protocol: (1) call iterations-get-by-id to retrieve the iteration, (2) display its name, ID, date range, and story count to the user, (3) ask the user to type 'delete iteration <name>' exactly, (4) only proceed on exact affirmative match.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "iterationPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the iteration to delete."
+          }
+        },
+        "required": ["iterationPublicId"]
+      },
+      "http": {
+        "method": "DELETE",
+        "url": "https://api.app.shortcut.com/api/v3/iterations/{iterationPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "labels-list",
+      "description": "Use when: you need to list all labels in the workspace, resolve a label name to an ID, or check what labels exist before creating one.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "slim": {
+            "type": "boolean",
+            "description": "If true, returns slim label records without story counts."
+          }
+        },
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/labels",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "slim": "{slim}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "labels-get-stories",
+      "description": "Use when: the user wants to see all stories tagged with a specific label.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "labelPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the label."
+          }
+        },
+        "required": ["labelPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/labels/{labelPublicId}/stories",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "labels-create",
+      "description": "Use when: the user wants to create a new label. Always call labels-list first to confirm the label doesn't already exist.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the label."
+          },
+          "color": {
+            "type": "string",
+            "description": "Hex color string for the label (e.g. '#ff0000')."
+          }
+        },
+        "required": ["name"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/labels",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "{name}",
+          "color": "{color}"
+        }
+      }
+    }
+    ,
+    {
+      "name": "custom-fields-list",
+      "description": "Use when: you need to discover available custom fields and their enum values before setting custom_fields on a story. Always call this before using custom_fields in stories-create or stories-update.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/custom-fields",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "objectives-get-by-id",
+      "description": "Use when: you need full details of a specific objective (milestone) by its integer ID, including associated epics and state.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "milestonePublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the objective (milestone)."
+          }
+        },
+        "required": ["milestonePublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/milestones/{milestonePublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "objectives-search",
+      "description": "Use when: you need to find objectives (milestones) by keyword or state. Always search before creating to avoid duplicates.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query string."
+          }
+        },
+        "required": ["query"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/milestones/search",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "query": "{query}"
+        }
+      }
+    },
+    {
+      "name": "teams-get-by-id",
+      "description": "Use when: you need details of a specific team (group) by its UUID, including its members and associated workflow IDs.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "teamPublicId": {
+            "type": "string",
+            "description": "The UUID string of the team (group)."
+          }
+        },
+        "required": ["teamPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/groups/{teamPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "teams-list",
+      "description": "Use when: you need to list all teams (groups) in the workspace, resolve a team name to a UUID, or find which teams exist.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/groups",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "projects-list",
+      "description": "Use when: you need to list all projects in the workspace or resolve a project name to its integer ID.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/projects",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "projects-get-by-id",
+      "description": "Use when: you need full details of a specific project by its integer ID.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "projectPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the project."
+          }
+        },
+        "required": ["projectPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/projects/{projectPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "projects-get-stories",
+      "description": "Use when: you need all stories belonging to a specific project.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "projectPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the project."
+          }
+        },
+        "required": ["projectPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/projects/{projectPublicId}/stories",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "workflows-get-default",
+      "description": "Use when: you need the default workflow for a team. Fetches the team (group) record by UUID, which contains workflow_ids[]. Follow up by calling workflows-get-by-id on workflow_ids[0] to get the actual workflow states.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "teamPublicId": {
+            "type": "string",
+            "description": "The UUID string of the team (group)."
+          }
+        },
+        "required": ["teamPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/groups/{teamPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "workflows-get-by-id",
+      "description": "Use when: you need the list of workflow states for a specific workflow by its integer ID. Always call this before setting workflow_state_id on a story to get valid state IDs.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "workflowPublicId": {
+            "type": "integer",
+            "description": "The integer public ID of the workflow."
+          }
+        },
+        "required": ["workflowPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/workflows/{workflowPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+    ,
+    {
+      "name": "workflows-list",
+      "description": "Use when: you need to list all workflows in the workspace to discover workflow IDs.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/workflows",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "documents-create",
+      "description": "Use when: the user wants to create a new Shortcut document. Content is always stored as Markdown.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the document."
+          },
+          "content": {
+            "type": "string",
+            "description": "Markdown content of the document."
+          }
+        },
+        "required": ["title", "content"]
+      },
+      "http": {
+        "method": "POST",
+        "url": "https://api.app.shortcut.com/api/v3/documents",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "title": "{title}",
+          "content": "{content}",
+          "content_format": "markdown"
+        }
+      }
+    }
+    ,
+    {
+      "name": "documents-get-by-id",
+      "description": "Use when: you need the full content and metadata of a specific Shortcut document by its UUID.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "documentPublicId": {
+            "type": "string",
+            "description": "The UUID string of the document."
+          }
+        },
+        "required": ["documentPublicId"]
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/documents/{documentPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "documents-update",
+      "description": "Use when: the user wants to update the title or content of an existing Shortcut document.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "documentPublicId": {
+            "type": "string",
+            "description": "The UUID string of the document."
+          },
+          "title": {
+            "type": "string",
+            "description": "New title of the document."
+          },
+          "content": {
+            "type": "string",
+            "description": "New Markdown content."
+          }
+        },
+        "required": ["documentPublicId"]
+      },
+      "http": {
+        "method": "PUT",
+        "url": "https://api.app.shortcut.com/api/v3/documents/{documentPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "title": "{title}",
+          "content": "{content}",
+          "content_format": "markdown"
+        }
+      }
+    }
+    ,
+    {
+      "name": "documents-delete",
+      "description": "Use when: the user explicitly wants to delete a Shortcut document by its UUID.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "documentPublicId": {
+            "type": "string",
+            "description": "The UUID string of the document to delete."
+          }
+        },
+        "required": ["documentPublicId"]
+      },
+      "http": {
+        "method": "DELETE",
+        "url": "https://api.app.shortcut.com/api/v3/documents/{documentPublicId}",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "documents-list",
+      "description": "Use when: the user wants to browse or search all Shortcut documents in the workspace.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "http": {
+        "method": "GET",
+        "url": "https://api.app.shortcut.com/api/v3/documents",
+        "headers": {
+          "Shortcut-Token": "${SHORTCUT_API_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}
