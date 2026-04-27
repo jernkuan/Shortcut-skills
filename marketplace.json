@@ -1,0 +1,19 @@
+{
+  "name": "shortcut-skills",
+  "metadata": {
+    "description": "GitHub Copilot agent plugin for Shortcut project management",
+    "version": "1.0.0"
+  },
+  "owner": {
+    "name": "Shortcut",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "shortcut-copilot",
+      "source": "./shortcut-plugin",
+      "description": "GitHub Copilot agent plugin for Shortcut project management. Provides two agent personas (Engineer and PM) with direct REST API access to Shortcut via tool definitions.",
+      "version": "1.0.0"
+    }
+  ]
+}
